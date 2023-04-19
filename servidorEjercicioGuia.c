@@ -12,6 +12,19 @@ int contador;
 //Estructura necesaria para acceso excluyente
 pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
 
+typedef struct
+{
+	int sock;
+}Tuser;
+typedef struct
+{
+	Tuser Tuser[40];
+	int num;
+}TListaUsers;
+
+TListaUsers usuarios;
+
+
 void *AtenderCliente (void *socket)
 {
 	int sock_conn;
@@ -120,7 +133,7 @@ int main(int argc, char *argv[])
 	//htonl formatea el numero que recibe al formato necesario
 	serv_adr.sin_addr.s_addr = htonl(INADDR_ANY);
 	// establecemos el puerto de escucha
-	serv_adr.sin_port = htons(9050);
+	serv_adr.sin_port = htons(9040);
 	if (bind(sock_listen, (struct sockaddr *) &serv_adr, sizeof(serv_adr)) < 0)
 		printf ("Error al bind");
 	
@@ -129,7 +142,7 @@ int main(int argc, char *argv[])
 	
 	contador =0;
 	int i;
-	int sockets[100];
+	//int sockets[100];
 	pthread_t thread;
 	i=0;
 	// Bucle para atender a 5 clientes
@@ -139,12 +152,12 @@ int main(int argc, char *argv[])
 		sock_conn = accept(sock_listen, NULL, NULL);
 		printf ("He recibido conexion\n");
 		
-		sockets[i] =sock_conn;
+		usuarios.Tuser[i].sock =sock_conn;
 		//sock_conn es el socket que usaremos para este cliente
 		
 		// Crear thead y decirle lo que tiene que hacer
 		
-		pthread_create (&thread, NULL, AtenderCliente,&sockets[i]);
+		pthread_create (&thread, NULL, AtenderCliente,&usuarios.Tuser[i].sock);
 		i=i+1;
 		
 	}
